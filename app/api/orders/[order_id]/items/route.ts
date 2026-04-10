@@ -6,8 +6,9 @@ import type { RowDataPacket } from 'mysql2';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { order_id: string } }
+  { params }: { params: Promise<{ order_id: string }> }
 ) {
+  const { order_id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.customerId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -16,7 +17,7 @@ export async function GET(
   // Verify order belongs to this customer
   const [orderRows] = await orderDb.execute<RowDataPacket[]>(
     'SELECT order_id FROM orders WHERE order_id = ? AND customer_id = ? LIMIT 1',
-    [params.order_id, session.user.customerId]
+    [order_id, session.user.customerId]
   );
   if (!orderRows.length) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -31,7 +32,7 @@ export async function GET(
      JOIN sf_inventory.parts p2 ON oi.part2_id = p2.part_id
      WHERE oi.order_id = ?
      ORDER BY oi.item_id`,
-    [params.order_id]
+    [order_id]
   );
 
   // Enrich with sort_results (sort_position, ng_reason)
@@ -45,7 +46,7 @@ export async function GET(
        WHERE item_id IN (${placeholders})`,
       itemIds
     );
-    sortMap = new Map(sortRows.map((r) => [r.item_id, r]));
+    sortMap = new Map(sortRows.map((r) => [r.item_id as number, { sort_position: r.sort_position as number, ng_reason: r.ng_reason as string | null }]));
   }
 
   const result = items.map((i) => {

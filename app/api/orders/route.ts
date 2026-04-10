@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         priority,
         notes || null,
         items.length,
-        session.user.email,
+        session.user.email ?? null,
       ]
     );
 

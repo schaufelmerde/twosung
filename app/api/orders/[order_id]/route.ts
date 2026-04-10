@@ -6,8 +6,9 @@ import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { order_id: string } }
+  { params }: { params: Promise<{ order_id: string }> }
 ) {
+  const { order_id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.customerId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +24,7 @@ export async function GET(
      LEFT JOIN sf_inventory.parts p2 ON oi.part2_id = p2.part_id
      WHERE o.order_id = ? AND o.customer_id = ?
      GROUP BY o.order_id`,
-    [params.order_id, session.user.customerId]
+    [order_id, session.user.customerId]
   );
 
   if (!rows.length) {
@@ -47,8 +48,9 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { order_id: string } }
+  { params }: { params: Promise<{ order_id: string }> }
 ) {
+  const { order_id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.customerId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,7 +67,7 @@ export async function PATCH(
   const [result] = await orderDb.execute<ResultSetHeader>(
     `UPDATE orders SET status = 'CANCELLED'
      WHERE order_id = ? AND customer_id = ? AND status IN ('PENDING', 'QUEUED')`,
-    [params.order_id, session.user.customerId]
+    [order_id, session.user.customerId]
   );
 
   if (result.affectedRows === 0) {
