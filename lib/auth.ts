@@ -1,6 +1,5 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import { orderDb } from './db';
 import type { RowDataPacket } from 'mysql2';
@@ -22,39 +21,66 @@ interface CustomerRow extends RowDataPacket {
   phone: string | null;
 }
 
-async function findOrCreateGoogleCustomer(email: string, name: string | null): Promise<CustomerRow> {
+async function findOrCreateGoogleCustomer(
+  email: string,
+  name: string
+): Promise<CustomerRow> {
   const [rows] = await orderDb.execute<CustomerRow[]>(
     'SELECT customer_id, company_name, contact_name, phone FROM customers WHERE email = ? LIMIT 1',
     [email]
   );
   if (rows[0]) return rows[0];
 
-  const [countRows] = await orderDb.execute<RowDataPacket[]>('SELECT COUNT(*) AS cnt FROM customers');
-  const next = Number(countRows[0].cnt) + 1;
-  const customerId = String(next).padStart(8, '0');
-  const displayName = name ?? email;
+  const [countRows] = await orderDb.execute<RowDataPacket[]>(
+    'SELECT COUNT(*) AS cnt FROM customers'
+  );
+  const customerId = String(Number(countRows[0].cnt) + 1).padStart(8, '0');
 
   await orderDb.execute(
     'INSERT INTO customers (customer_id, company_name, contact_name, email) VALUES (?, ?, ?, ?)',
-    [customerId, displayName, displayName, email]
+    [customerId, name, name, email]
   );
 
-  return { customer_id: customerId, company_name: displayName, contact_name: displayName, phone: null } as CustomerRow;
+  return { customer_id: customerId, company_name: name, contact_name: name, phone: null } as CustomerRow;
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId:     process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email:    { label: 'Email',    type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email:       { label: 'Email',        type: 'email' },
+        password:    { label: 'Password',     type: 'password' },
+        googleToken: { label: 'Google Token', type: 'text' },
       },
       async authorize(credentials) {
+        // ── Google Sign-In With Google (GSI) ─────────────────────────
+        if (credentials?.googleToken) {
+          const res = await fetch(
+            `https://oauth2.googleapis.com/tokeninfo?id_token=${credentials.googleToken}`
+          );
+          if (!res.ok) return null;
+
+          const payload = await res.json();
+          if (payload.aud !== process.env.GOOGLE_CLIENT_ID) return null;
+
+          const email: string = payload.email;
+          const name: string  = payload.name ?? payload.email;
+
+          const customer = await findOrCreateGoogleCustomer(email, name);
+
+          return {
+            id:          customer.customer_id,
+            email,
+            name:        customer.contact_name,
+            customerId:  customer.customer_id,
+            companyName: customer.company_name,
+            contactName: customer.contact_name,
+            phone:       customer.phone ?? undefined,
+          };
+        }
+
+        // ── Email / password ──────────────────────────────────────────
         if (!credentials?.email || !credentials?.password) return null;
 
         const [rows] = await orderDb.execute<AuthRow[]>(
@@ -73,7 +99,6 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, row.password_hash);
         if (!valid) return null;
 
-        // Record last login (fire-and-forget)
         orderDb.execute(
           'UPDATE user_auth SET last_login = NOW() WHERE auth_id = ?',
           [row.auth_id]
@@ -95,21 +120,8 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
 
   callbacks: {
-    async signIn({ account, user }) {
-      if (account?.provider === 'google' && user.email) {
-        await findOrCreateGoogleCustomer(user.email, user.name ?? null);
-      }
-      return true;
-    },
-
-    async jwt({ token, user, account }) {
-      if (account?.provider === 'google' && token.email) {
-        const customer = await findOrCreateGoogleCustomer(token.email, token.name ?? null);
-        token.customerId  = customer.customer_id;
-        token.companyName = customer.company_name;
-        token.contactName = customer.contact_name;
-        token.phone       = customer.phone ?? undefined;
-      } else if (user) {
+    async jwt({ token, user }) {
+      if (user) {
         const u = user as typeof user & {
           customerId: string;
           companyName: string;
