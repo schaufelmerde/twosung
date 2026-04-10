@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="ko" className={`${inter.variable} ${spaceGrotesk.variable}`}>
-      <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       <body className="bg-white text-black dark:bg-black dark:text-white antialiased transition-colors duration-300" suppressHydrationWarning>
         <ThemeProvider>
           <LanguageProvider>
