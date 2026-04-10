@@ -31,7 +31,7 @@ async function findOrCreateGoogleCustomer(email: string, name: string | null): P
 
   const [countRows] = await orderDb.execute<RowDataPacket[]>('SELECT COUNT(*) AS cnt FROM customers');
   const next = Number(countRows[0].cnt) + 1;
-  const customerId = `CUST-${String(next).padStart(4, '0')}`;
+  const customerId = String(next).padStart(8, '0');
   const displayName = name ?? email;
 
   await orderDb.execute(
