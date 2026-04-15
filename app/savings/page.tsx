@@ -9,27 +9,31 @@ import { useLanguage } from '@/hooks/use-language';
 // Benchmark Data from PRD
 const BENCHMARKS = {
   CONVENTIONAL: {
-    labourHours: 4.5,
-    labourCostPerHour: 35000,
-    defectRate: 0.06,
-    reworkCost: 90000,
-    cycleTime: '4.5 hrs',
+    labourHours: 120,           // ~3 weeks per sub-assembly
+    labourCostPerHour: 45000,   // KRW/hr incl. overhead
+    defectRate: 0.08,
+    reworkCost: 5000000,        // KRW per rework incident
+    cycleTime: '14 months',
   },
   SMART_FACTORY: {
-    labourHours: 0.3, // ~65 sec cycle
-    labourCostPerHour: 35000,
+    labourHours: 6,             // automated — minimal oversight
+    labourCostPerHour: 45000,
     defectRate: 0.01,
-    reworkCost: 15000,
-    cycleTime: '65 sec',
+    reworkCost: 500000,
+    cycleTime: '3 months',
   },
 };
 
 const EXCHANGE_RATE = 1350; // 1 USD = 1350 KRW
 
 const SHIP_TYPES = [
-  { id: 'lng', name: 'LNG Carrier', baseMaterialCost: 500000 },
-  { id: 'container', name: 'Container Ship', baseMaterialCost: 350000 },
-  { id: 'tanker', name: 'Tanker', baseMaterialCost: 420000 },
+  { id: 'bulk',      labelKey: 'shipTypeBulkCarrier',      baseMaterialCost: 32000000 },
+  { id: 'container', labelKey: 'shipTypeContainerShip',     baseMaterialCost: 35000000 },
+  { id: 'tanker',    labelKey: 'shipTypeTanker',            baseMaterialCost: 42000000 },
+  { id: 'lng',       labelKey: 'shipTypeLNGCarrier',        baseMaterialCost: 50000000 },
+  { id: 'naval',     labelKey: 'shipTypeNavalVessel',       baseMaterialCost: 68000000 },
+  { id: 'offshore',  labelKey: 'shipTypeOffshorePlatform',  baseMaterialCost: 75000000 },
+  { id: 'ferry',     labelKey: 'shipTypeFerry',             baseMaterialCost: 28000000 },
 ];
 
 export default function SavingsCalculator() {
@@ -66,13 +70,11 @@ export default function SavingsCalculator() {
         total: conventionalTotal,
         labour: conventionalLabour * quantity,
         defectRate: '6%',
-        cycleTime: BENCHMARKS.CONVENTIONAL.cycleTime,
       },
       smart: {
         total: smartTotal,
         labour: smartLabour * quantity,
         defectRate: '<1%',
-        cycleTime: BENCHMARKS.SMART_FACTORY.cycleTime,
       },
       savings,
       savingsPct,
@@ -85,7 +87,7 @@ export default function SavingsCalculator() {
         <h1 className="font-display text-5xl font-bold tracking-tighter sm:text-7xl text-black dark:text-white uppercase">
           {t('savings')}
         </h1>
-        <p className="mt-4 text-gray-600 dark:text-gray-400">Compare the costs of conventional welding vs. our Smart Factory solution.</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">{t('savingsPageDesc')}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
@@ -133,8 +135,8 @@ export default function SavingsCalculator() {
                         : 'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:border-brand-500/50'
                     }`}
                   >
-                    <p className="font-bold">{type.name}</p>
-                    <p className="text-xs opacity-60">Base Material: {formatValue(type.baseMaterialCost)}</p>
+                    <p className="font-bold">{t(type.labelKey)}</p>
+                    <p className="text-xs opacity-60">{t('baseMaterial')}: {formatValue(type.baseMaterialCost)}</p>
                   </button>
                 ))}
               </div>
@@ -155,7 +157,7 @@ export default function SavingsCalculator() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 flex items-center gap-2"><Clock className="h-4 w-4" /> {t('cycleTime')}</span>
-                  <span className="font-medium text-black dark:text-white">{results.conventional.cycleTime}</span>
+                  <span className="font-medium text-black dark:text-white">{t('cycleTimeConventional')}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 flex items-center gap-2"><ShieldAlert className="h-4 w-4" /> {t('defectRate')}</span>
@@ -174,7 +176,7 @@ export default function SavingsCalculator() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 flex items-center gap-2"><Clock className="h-4 w-4 text-brand-500" /> {t('cycleTime')}</span>
-                  <span className="font-medium text-brand-500">{results.smart.cycleTime}</span>
+                  <span className="font-medium text-brand-500">{t('cycleTimeSmart')}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-brand-500" /> {t('defectRate')}</span>
@@ -197,7 +199,7 @@ export default function SavingsCalculator() {
                   <TrendingDown className="h-6 w-6" />
                   <h3 className="text-2xl font-bold uppercase tracking-tight">{t('totalSavings')}</h3>
                 </div>
-                <p className="text-black/70 font-medium">Based on {quantity} sub-assemblies for a {shipType.name}</p>
+                <p className="text-black/70 font-medium">{t('savingsSummaryDesc').replace('{qty}', String(quantity)).replace('{ship}', t(shipType.labelKey))}</p>
               </div>
               <div className="text-center md:text-right">
                 <p className="text-5xl font-black tracking-tighter">{formatValue(results.savings)}</p>

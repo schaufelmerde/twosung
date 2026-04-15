@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { orderDb } from '@/lib/db';
+import { orderDb, inventoryDb } from '@/lib/db';
 import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 export async function GET() {
@@ -58,40 +58,66 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Generate sequential order_id for current year
-  const year = new Date().getFullYear();
-  const [countRows] = await orderDb.execute<RowDataPacket[]>(
-    'SELECT COUNT(*) AS cnt FROM orders WHERE order_id LIKE ?',
-    [`ORD-${year}-%`]
-  );
-  const seq = String(Number(countRows[0].cnt) + 1).padStart(5, '0');
-  const orderId = `ORD-${year}-${seq}`;
+  // Current queue state — determines status assigned to each new order
+  const [
+    [inProgressRows],
+    [queuedRows],
+    [orderCountRows],
+    [shipCountRows],
+  ] = await Promise.all([
+    orderDb.execute<RowDataPacket[]>("SELECT COUNT(*) AS cnt FROM orders WHERE status = 'IN_PROGRESS'"),
+    orderDb.execute<RowDataPacket[]>("SELECT COUNT(*) AS cnt FROM orders WHERE status = 'QUEUED'"),
+    orderDb.execute<RowDataPacket[]>("SELECT COALESCE(MAX(CAST(SUBSTRING(order_id, 2) AS UNSIGNED)), 0) AS cnt FROM orders"),
+    inventoryDb.execute<RowDataPacket[]>("SELECT COALESCE(MAX(CAST(SUBSTRING(ship_id, 6) AS UNSIGNED)), 0) AS cnt FROM ships"),
+  ]);
+
+  let inProgressSlotFilled = Number(inProgressRows[0].cnt) > 0;
+  let queuedSlotFilled     = Number(queuedRows[0].cnt) > 0;
+  let orderSeq             = Number(orderCountRows[0].cnt);
+  let shipSeq              = Number(shipCountRows[0].cnt);
 
   const conn = await orderDb.getConnection();
+  const createdOrderIds: string[] = [];
+
   try {
     await conn.beginTransaction();
 
-    await conn.execute<ResultSetHeader>(
-      `INSERT INTO orders
-         (order_id, customer_id, ship_type, due_date, priority, notes, status, total_qty, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, 'PENDING', ?, ?)`,
-      [
-        orderId,
-        session.user.customerId,
-        shipType,
-        dueDate,
-        priority,
-        notes || null,
-        items.length,
-        session.user.email ?? null,
-      ]
-    );
-
     for (const item of items) {
+      orderSeq++;
+      shipSeq++;
+
+      const orderId = `P${String(orderSeq).padStart(9, '0')}`;
+      const shipId  = `SHIP-${String(shipSeq).padStart(3, '0')}`;
+
+      let status: string;
+      if (!inProgressSlotFilled) {
+        status = 'IN_PROGRESS';
+        inProgressSlotFilled = true;
+      } else if (!queuedSlotFilled) {
+        status = 'QUEUED';
+        queuedSlotFilled = true;
+      } else {
+        status = 'PENDING';
+      }
+
+      await conn.execute<ResultSetHeader>(
+        `INSERT INTO orders
+           (order_id, customer_id, ship_type, due_date, priority, notes, status, total_qty, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+        [orderId, session.user.customerId, shipType, dueDate, priority, notes || null, status, session.user.email ?? null]
+      );
+
       await conn.execute<ResultSetHeader>(
         'INSERT INTO order_items (order_id, part1_id, part2_id) VALUES (?, ?, ?)',
         [orderId, item.part1Id, item.part2Id]
       );
+
+      await inventoryDb.execute(
+        `INSERT INTO ships (ship_id, ship_name, ship_type, status) VALUES (?, ?, ?, 'PLANNING')`,
+        [shipId, `${shipType} #${shipSeq}`, shipType]
+      );
+
+      createdOrderIds.push(orderId);
     }
 
     await conn.commit();
@@ -99,9 +125,10 @@ export async function POST(req: NextRequest) {
     await conn.rollback();
     conn.release();
     console.error('Create order error:', err);
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: 'Failed to create order', detail: message }, { status: 500 });
   }
 
   conn.release();
-  return NextResponse.json({ orderId }, { status: 201 });
+  return NextResponse.json({ orderIds: createdOrderIds }, { status: 201 });
 }

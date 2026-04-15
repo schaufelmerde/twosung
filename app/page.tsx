@@ -4,167 +4,170 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
-import { ArrowRight, Zap, ShieldCheck, Cpu, BarChart3, ChevronRight } from 'lucide-react';
+import { ChevronDown, Zap, ShieldCheck, Cpu, BarChart3, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function HomePage() {
   const { t } = useLanguage();
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 pt-20 pb-20">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://picsum.photos/seed/factory/1920/1080?blur=2"
-            alt="Smart Factory Hero"
-            fill
-            className="object-cover opacity-30"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-white dark:from-black dark:via-black/80 dark:to-black"></div>
-        </div>
+    <div>
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <section className="relative min-h-screen flex flex-col overflow-hidden">
+        <Image
+          src="/home/home-hero-main.png"
+          alt="Smart Factory"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Gradient: lighter at top, heavy dark at bottom for card contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/85" />
 
-        <div className="container relative z-10 mx-auto text-center">
+        <div className="relative z-10 flex flex-col flex-1 pt-24 pb-8">
+          <div className="w-full max-w-4xl mx-auto px-8 md:px-16 flex flex-col flex-1">
+          {/* Headline */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+            className="flex-1"
           >
-            <h1 className="font-display text-5xl font-bold tracking-tighter sm:text-7xl md:text-8xl text-black dark:text-white">
-              {t('heroTitle')} <br />
-              <span className="text-brand-500">{t('heroSubtitle')}</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400 md:text-xl">
-              {t('heroDesc')}
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="/register"
-                className="group flex items-center gap-2 rounded-full bg-brand-500 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-brand-600"
-              >
-                {t('placeOrder')}
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-              <Link
-                href="/savings"
-                className="rounded-full border border-black/10 dark:border-white/20 bg-black/5 dark:bg-white/5 px-8 py-4 text-lg font-bold text-black dark:text-white backdrop-blur-sm transition-all hover:bg-black/10 dark:hover:bg-white/10"
-              >
-                {t('calculateSavings')}
-              </Link>
-            </div>
+            {/* Brand logotype */}
+            <svg
+              viewBox="0 0 830.99172 239.58946"
+              className="w-full max-w-4xl mt-10"
+              aria-label="Smart Factory"
+            >
+              <path
+                d="m 164.81532,106.66808 -2.15444,16.07149 h -20.62365 c -12.28382,0 -20.22402,-0.66023 -19.61591,-1.61583 0.53862,-0.88611 0.29538,-2.05021 -0.57335,-2.58881 -1.35523,-0.83399 -2.44982,-6.68922 -4.70851,-25.332162 -0.29538,-2.3977 -1.73746,-10.112 -3.19693,-17.16609 -1.45946,-7.07145 -2.1892,-13.58692 -1.63321,-14.50777 0.57336,-0.92085 0.19112,-3.35329 -0.83398,-5.42087 -2.38032,-4.77801 -8.8958,-46.21641 -7.73169,-49.2395902 0.62548,-1.61583 4.86488,-2.27607 14.50778,-2.27607 h 13.63905 l 0.9556,5.6467502 c 1.94594,11.53672 9.62552,77.57752 9.67764,83.20689 0.10426,12.301212 2.97106,0.0348 5.90736,-25.43639 1.66797,-14.33405 3.73554,-27.62559 4.62163,-29.5368 0.86875,-1.9112 1.38999,-5.42088 1.16411,-7.81857 -0.22586,-2.39769 0.24325,-9.4344 1.0251,-15.63712 l 1.44209,-11.2934902 18.52131,0.59074 c 10.18151,0.33011 18.76456,0.83398 19.05993,1.12935 0.50385,0.4865 8.84365,60.4635702 11.57147,83.1200202 0.66023,5.57725 1.51158,9.834007 1.89383,9.469147 0.62549,-0.64286 6.46335,-49.048457 8.89579,-73.946227 0.59073,-6.01162 1.73745,-11.32824 2.55406,-11.83211 0.8166,-0.50385 1.47684,-2.43243 1.47684,-4.29152 0,-3.0579302 1.3031,-3.3706702 14.12554,-3.3706702 h 14.12554 l -1.18147,9.1216602 c -0.66024,5.02125 -3.45754,23.19508 -6.2201,40.39591 -2.77995,17.20084 -6.37648,39.68356 -8.00969,49.951942 l -2.98843,18.67768 h -40.84765 l -1.04248,-4.77802 c -0.57335,-2.62355 -1.38996,-8.68729 -1.84171,-13.46529 -0.45173,-4.778015 -1.59845,-12.996202 -2.53669,-18.243322 -0.9556,-5.24712 -2.08494,-13.06568 -2.50193,-17.37459 -0.41699,-4.3089 -1.63321,-13.13519 -2.69307,-19.63327 -1.05983,-6.49811 -1.59846,-12.37072 -1.21622,-13.03094 0.38223,-0.67762 0.10426,-2.77995 -0.62549,-4.69116 -0.33011,-0.90346 -0.60811,-1.68533 -0.88609,-1.7027 -1.14673,-0.0348 -2.71045,11.58885 -10.946,72.764772 z m 167.24776,17.77419 c -8.61779,2.39769 -29.08505,2.01546 -37.77234,-0.69497 -6.72397,-2.10234 -20.71051,-12.80507 -18.99043,-14.52516 0.43437,-0.43437 -0.38224,-1.96333 -1.82434,-3.40541 -2.20656,-2.20659 -2.5193,-9.017422 -2.08494,-44.027202 0.4865,-39.05807 0.71236,-41.56001 3.99615,-44.04458 1.91121,-1.4421 2.90156,-2.64096 2.1892,-2.67569 -2.76255,-0.12163 5.1255,-7.47109 11.71048,-10.9286202 10.12939,-5.299249 38.36308,-5.386117 49.53494,-0.12161 17.0966,8.0444302 18.92093,13.7432902 19.02517,59.7164402 0.0695,33.637197 -0.15637,36.121757 -3.83978,43.419092 -4.23939,8.39194 -12.04059,14.54254 -21.94411,17.28771 z m 308.7464,-48.614082 0.57337,46.911382 H 611.58544 V 62.606128 c 0,-54.10447 0.27799,-60.0118272 2.74516,-59.0735902 1.5116,0.59073 11.69311,1.05984 22.63911,1.05984 h 19.87653 l 1.82432,4.7780102 c 1.00772,2.62357 7.43631,22.60434 14.29929,44.39207 l 12.45757,39.61407 1.58109,-11.81472 c 1.04248,-7.90544 0.90348,-16.43636 -0.43436,-25.80127 -1.11198,-7.69695 -2.01546,-22.36109 -2.01546,-32.57735 V 4.5923778 h 29.5368 V 122.73957 l -19.54641,-0.0348 c -10.75486,0 -20.43251,-0.59074 -21.49236,-1.3031 -1.07723,-0.69498 -2.60619,-3.99616 -3.38805,-7.34945 -1.8417,-7.85331 -1.56371,-7.00195 -4.08302,-13.03094 -3.1448,-7.557942 -13.83018,-39.353432 -14.59467,-43.436462 -0.36485,-1.91121 -1.6332,-5.82049 -2.83205,-8.68729 -1.19884,-2.86682 -2.18919,-6.96722 -2.20656,-9.12165 -0.0348,-2.15446 -0.72973,-3.90929 -1.56372,-3.90929 -0.85136,0 -1.52897,-1.56371 -1.52897,-3.47491 0,-1.9112 -0.59073,-3.47493 -1.3031,-3.47493 -0.71234,0 -1.04245,21.11013 -0.7471,46.91139 z M 813.13063,120.394 c -10.05988,4.7954 -30.97889,6.5676 -41.80325,3.52704 -9.26065,-2.58881 -19.54642,-8.25293 -19.52903,-10.7375 0,-0.95559 -1.25098,-2.69305 -2.77994,-3.85714 -1.52897,-1.1641 -1.99809,-2.15445 -1.04248,-2.18921 0.9556,-0.0521 0.57337,-0.83398 -0.86873,-1.73745 -2.15445,-1.35522 -2.69306,-7.957575 -3.1448,-37.754992 -0.6081,-39.82255 0,-46.00789 4.9865,-50.9944 1.8591,-1.85909 3.23169,-3.9614 3.05794,-4.67376 -0.48649,-2.08496 11.18922,-9.3127882 13.56955,-8.4093102 1.18148,0.45175 2.46719,-0.104254 2.84942,-1.250974 0.4865,-1.44207695 6.16799,-2.01544595 18.78194,-1.87644995 15.56763,0.156382 19.19893,0.76448595 25.88814,4.34364395 9.34752,5.0038902 15.34176,14.7857702 16.85334,27.5039702 l 1.04248,8.79155 h -31.76075 v -6.68922 c 0,-8.35717 -4.778,-13.11782 -13.13517,-13.11782 -11.36298,0 -11.98849,1.98071 -12.59658,39.49245 -0.50387,31.93448 -0.36488,33.67194 3.17954,38.154577 4.44789,5.664125 13.16995,6.359105 19.12942,1.528965 3.2838,-2.640935 3.94403,-4.969132 4.10041,-14.334032 0.19111,-11.15448 0.19111,-11.15448 -5.02127,-11.74521 -6.60233,-0.74712 -7.90543,-2.84944 -7.50581,-12.00585 l 0.33012,-7.3842 h 42.7936 v 21.40549 c 0,19.91128 -0.33012,22.065737 -4.77802,30.839892 -3.82239,7.54057 -6.34171,10.1815 -12.59657,13.16994 z m -249.08206,1.80696 c -3.50967,1.80696 -11.01549,2.98844 -21.07538,3.33592 -16.45373,0.57336 -22.62171,-0.41699 -31.41325,-5.00388 -5.24713,-2.72781 -11.01548,-8.21818 -8.65254,-8.21818 0.66023,0 -0.31273,-1.92858 -2.17183,-4.29152 -3.11005,-3.96141 -3.40541,-7.59269 -3.68341,-44.948062 -0.17375,-22.34371 0.20849,-44.60057 0.85135,-49.4307 l 1.1641,-8.8089002 27.38236,-1.11199 V 49.818438 c 0,52.523372 0.29535,53.809092 11.98845,53.809092 4.48265,0 7.64483,-1.1641 9.90352,-3.648675 3.02317,-3.353297 3.33592,-7.175707 3.77028,-45.608287 0.26063,-23.07344 0.85136,-43.66233 1.3031,-45.72991 0.76448,-3.4401702 2.10233,-3.8397902 14.73365,-4.3436502 l 13.89967,-0.57336 V 49.766308 c -0.0173,26.28774 -0.78186,48.805217 -1.80696,52.506002 -2.20658,7.88806 -8.91316,16.15837 -16.19311,19.92865 z m -112.29196,0.60811 c -5.00387,2.58881 -34.87079,3.92665 -42.5851,1.89383 -9.67766,-2.53669 -20.74526,-9.74715 -19.0773,-12.4402 0.45173,-0.72973 -0.43437,-1.80696 -1.96334,-2.38033 -1.58107,-0.60811 -2.34555,-2.18919 -1.78957,-3.66603 0.55599,-1.42471 0.24323,-2.58881 -0.67761,-2.58881 -0.92086,0 -1.68534,-3.926675 -1.68534,-8.739422 0,-10.40738 0.4865,-10.72013 18.31281,-11.01549 l 12.96145,-0.22587 v 7.47107 c 0,5.83786 1.00772,8.391927 4.60426,11.727842 2.51932,2.34558 5.92473,4.25678 7.55794,4.25678 4.83014,0 12.16221,-7.992305 12.16221,-13.274182 0,-8.18343 -6.41122,-14.92478 -21.19699,-22.25684 -14.59464,-7.24521 -24.49817,-13.76068 -23.09082,-15.16801 0.46911,-0.46913 -1.52896,-2.97107 -4.44789,-5.57725 -3.7703,-3.3533 -4.98651,-5.69887 -4.22202,-8.09656 0.60811,-1.91121 0.26061,-3.38805 -0.78187,-3.38805 -1.0251,0 -1.85908,-3.12741 -1.85908,-6.94983 0,-3.92665 0.83398,-6.94984 1.92858,-6.94984 1.05986,0 1.49421,-1.07722 0.99036,-2.41505 -1.58109,-4.15253 13.13517,-21.0406372 17.04446,-19.5464302 1.32048,0.50387 2.67568,0.0695 3.02318,-0.972969 0.36487,-1.094592 6.75871,-2.10232695 15.32439,-2.41506895 19.37266,-0.694978 30.80513,2.50194095 37.92871,10.61587815 6.06374,6.89771 7.66219,11.60622 6.84559,20.13715 l -0.55599,5.88997 -28.66806,1.00774 v -6.02898 c 0,-8.3398 -3.94404,-11.77998 -12.77032,-11.13712 -6.0116,0.43436 -7.41895,1.28573 -8.80892,5.29926 -3.24904,9.24327 0.0173,13.0483 21.44025,25.00202 22.04834,12.28384 25.31476,14.76839 29.31092,22.34372 3.73553,7.01934 3.71816,27.747212 0,34.749162 -3.17956,5.94212 -8.96529,11.57149 -15.25489,14.83791 z M 59.073593,23.860798 V 122.73957 H 28.668067 L 29.17193,77.131268 c 0.277994,-25.08889 0.0695,-47.3631 -0.469114,-49.51756 -0.903477,-3.64866 -1.89383,-3.90927 -14.837897,-3.90927 H 0 v -9.9904 -9.9903902 l 39.527183,0.22588 c 21.735608,0.12162 40.934526,0.33011 42.654611,0.43436 2.675685,0.17375 3.057926,1.56371 2.606186,9.3301502 l -0.521237,9.12165 z M 303.29077,99.770355 c 3.73555,5.334015 16.15837,5.455635 20.91901,0.2085 2.91893,-3.231657 3.37066,-7.071447 3.87453,-33.446077 0.64286,-34.12368 -0.6776,-41.36888 -8.13131,-44.46156 -6.16798,-2.55407 -13.44793,-0.83399 -16.80124,3.96141 -3.85714,5.50774 -3.75291,68.19524 0.13901,73.737727 z"
+                fill="currentColor"
+                className="text-white"
+              />
+              <path
+                d="m 525.31893,239.58946 c 7.37951,0 12.9444,-0.96782 16.93659,-3.02441 3.99221,-1.93561 6.89562,-4.83902 8.71025,-8.83123 1.81464,-3.87122 2.90344,-8.71025 3.26636,-14.63807 0.36293,-5.80684 0.4839,-12.58148 0.4839,-20.44491 0,0 0,0 0,0 0,-7.86342 -0.12106,-14.63807 -0.4839,-20.56588 -0.36292,-5.92781 -1.33074,-10.76684 -3.14538,-14.75905 -1.81464,-3.9922 -4.71805,-6.89561 -8.71024,-8.9522 -3.9922,-2.05659 -9.67807,-3.0244 -17.05758,-3.0244 0,0 0,0 0,0 -4.96003,0 -9.0732,0.48391 -12.46052,1.33073 -3.38731,0.84684 -6.16977,2.17757 -8.34733,3.99221 -2.17757,1.81463 -3.87123,3.9922 -4.96,6.65366 -1.20976,2.66147 -2.05659,5.68586 -2.66148,9.19417 -0.60488,3.50829 -0.84682,7.37951 -0.9678,11.73465 -0.12106,4.4761 -0.12106,9.19415 -0.12106,14.39611 0,0 0,0 0,0 0,7.86343 0.12106,14.63807 0.4839,20.44491 0.36292,5.92782 1.45171,10.76685 3.26635,14.63807 1.81464,3.99221 4.83902,6.89562 8.83123,8.83123 3.9922,2.05659 9.55709,3.02441 16.93662,3.02441 z m 8.83122,-39.80104 c 0,0 0,0 0,0 0,4.83903 0,8.83123 -0.12107,12.09757 -0.12105,3.26636 -0.36291,5.80684 -0.96781,7.74246 -0.60487,1.93561 -1.45169,3.26633 -2.66147,4.11317 -1.20975,0.84683 -2.9034,1.20974 -5.08096,1.20974 0,0 0,0 0,0 -2.29856,0 -3.9922,-0.36291 -5.20198,-1.20974 -1.20975,-0.84684 -2.05658,-2.17756 -2.66145,-4.11317 -0.60489,-1.93562 -0.84684,-4.4761 -0.96782,-7.74246 -0.12106,-3.26634 -0.12106,-7.25854 -0.12106,-12.09757 0,0 0,-14.5171 0,-14.5171 0,0 0,0 0,0 0,-4.83903 0,-8.83123 0.12106,-12.09757 0.12107,-3.26636 0.36293,-5.80684 0.96782,-7.74246 0.60487,-1.93561 1.4517,-3.26635 2.66145,-4.11317 1.20978,-0.84683 2.90342,-1.20976 5.20198,-1.20976 0,0 0,0 0,0 2.17756,0 3.87121,0.36293 5.08096,1.20976 1.20978,0.84682 2.0566,2.17756 2.66147,4.11317 0.6049,1.93562 0.84685,4.4761 0.96781,7.74246 0.12107,3.26634 0.12107,7.25854 0.12107,12.09757 z m 73.19026,5.92781 c 0,0 0,0 0,0 0,3.62927 -0.12106,6.65366 -0.24198,9.07317 -0.2419,2.5405 -0.6048,4.47613 -1.20967,5.92782 -0.60494,1.57269 -1.57271,2.66148 -2.66147,3.26635 -1.20981,0.60488 -2.78245,0.96779 -4.71806,0.96779 0,0 0,0 0,0 -2.29857,0 -3.99222,-0.36291 -5.20197,-1.20974 -1.20977,-0.84684 -2.05658,-2.17756 -2.66149,-4.11317 -0.60487,-1.93562 -0.84682,-4.4761 -0.96779,-7.74246 -0.12106,-3.26634 -0.12106,-7.25854 -0.12106,-12.09757 0,0 0,-14.5171 0,-14.5171 0,0 0,0 0,0 0,-4.83903 0,-8.83123 0.12106,-12.09757 0.12106,-3.26636 0.36292,-5.80684 0.96779,-7.74246 0.60491,-1.93561 1.45172,-3.26635 2.66149,-4.11317 1.20975,-0.84683 2.9034,-1.20976 5.20197,-1.20976 0,0 0,0 0,0 1.81462,0 3.38733,0.24195 4.47609,0.84683 1.08875,0.60487 2.05659,1.4517 2.66146,2.78244 0.60488,1.33073 0.96784,3.14537 1.20975,5.32293 0.2419,2.17757 0.36289,4.83903 0.48388,8.10538 0,0 18.75126,0 18.75126,0 0,0 0,0 0,0 0,-4.71806 -0.2419,-8.95221 -0.60487,-12.94441 -0.48388,-3.87122 -1.57264,-7.25855 -3.38733,-10.04099 -1.81461,-2.78244 -4.59707,-4.96 -8.34729,-6.53269 -3.7503,-1.57269 -8.83126,-2.29854 -15.24295,-2.29854 0,0 0,0 0,0 -4.96002,0 -9.07319,0.48391 -12.46053,1.33073 -3.38733,0.84684 -6.16976,2.17757 -8.34733,3.99221 -2.17755,1.81463 -3.87122,3.9922 -4.96001,6.65366 -1.20975,2.66147 -2.05659,5.68586 -2.66147,9.19417 -0.60486,3.50829 -0.84682,7.37951 -0.96779,11.73465 -0.12107,4.4761 -0.12107,9.19415 -0.12107,14.39611 0,0 0,0 0,0 0,7.86343 0.12107,14.63807 0.4839,20.44491 0.36292,5.92782 1.45172,10.76685 3.26633,14.63807 1.81464,3.99221 4.83906,6.89562 8.83125,8.83123 3.9922,2.05659 9.55709,3.02441 16.93665,3.02441 0,0 0,0 0,0 6.65367,0 11.73455,-0.84685 15.48484,-2.54051 3.75023,-1.57267 6.41177,-3.9922 8.22639,-7.01659 1.81461,-3.0244 2.90337,-6.53268 3.26634,-10.64586 0.36296,-4.11318 0.60487,-8.71027 0.60487,-13.67027 z m 82.14268,32.78443 c 0,0 0,-16.21075 0,-16.21075 0,0 -29.27622,0 -29.27622,0 0,0 0,-23.83223 0,-23.83223 0,0 27.58244,0 27.58244,0 0,0 0,-16.57368 0,-16.57368 0,0 -27.58244,0 -27.58244,0 0,0 0,-18.75124 0,-18.75124 0,0 28.79226,0 28.79226,0 0,0 0,-16.45272 0,-16.45272 0,0 -47.42253,0 -47.42253,0 0,0 0,91.82062 0,91.82062 z m 23.95313,-92.06257 c 0,0 -16.21078,91.82062 -16.21078,91.82062 0,0 18.63027,0 18.63027,0 0,0 7.86342,-53.71325 7.86342,-53.71325 0.48395,-4.11317 1.08883,-8.22635 1.69362,-12.09758 0,-0.48389 0.12107,-0.9678 0.12107,-1.4517 0.48396,-3.5083 0.96784,-7.13758 1.20982,-10.64587 0,0.4839 0.12106,0.96781 0.12106,1.4517 0.24191,3.62928 0.72586,7.13758 1.20975,10.64587 0.48395,3.87123 1.08875,7.86343 1.69362,11.97661 0,0 7.86342,53.59227 7.86342,53.59227 0,0 18.87232,0 18.87232,0 0,0 -16.33177,-91.69964 -16.33177,-91.69964 z m 115.28989,92.06257 c 0,0 0,-91.82062 0,-91.82062 0,0 -16.08972,0 -16.08972,0 0,0 0,45.72885 0,45.72885 0,0 0,0 0,0 0,2.78244 0,5.08098 0,7.13757 0,2.05659 0,3.87123 0.12181,5.56489 0,1.81463 0,3.5083 0.12167,5.08098 0.12174,1.57268 0.2419,3.38733 0.36297,5.20197 0,0 0,0 0,0 -0.36297,-1.81464 -0.847,-3.50831 -1.20975,-5.081 -0.36297,-1.57268 -0.847,-3.14536 -1.20974,-4.83903 -0.48403,-1.69365 -0.96784,-3.50829 -1.57271,-5.44391 -0.60488,-1.81463 -1.20975,-3.9922 -1.93569,-6.41171 0,0 -14.87997,-46.93861 -14.87997,-46.93861 0,0 -26.37277,0 -26.37277,0 0,0 0,91.82062 0,91.82062 0,0 15.24294,0 15.24294,0 0,0 0,-51.65665 0,-51.65665 0,0 0,0 0,0 0,-2.66147 0,-4.96001 0,-7.0166 -0.12106,-2.05659 -0.12106,-3.87123 -0.12106,-5.56489 -0.12107,-1.69365 -0.12107,-3.38732 -0.24191,-4.96001 -0.12114,-1.57268 -0.12114,-3.14536 -0.24198,-4.83903 0,0 0,0 0,0 0.48389,1.57269 0.96777,3.14537 1.33074,4.71806 0.36289,1.57269 0.84685,3.14537 1.33073,4.83903 0.36297,1.69366 0.96777,3.5083 1.57271,5.44391 0.6048,1.93561 1.33074,3.9922 2.17751,6.29074 0,0 18.14632,52.74544 18.14632,52.74544 z"
+                fill="currentColor"
+                className="text-white"
+              />
+            </svg>
           </motion.div>
-        </div>
 
+          {/* Bottom row — button left, tagline right */}
+          <div className="flex items-end justify-between pb-6">
+            <Link
+              href="/order/new"
+              className="rounded-full bg-brand-500 px-8 py-3 text-sm font-bold text-white hover:bg-brand-600 transition-colors shrink-0"
+            >
+              {t('placeOrder')}
+            </Link>
+            <div className="text-right max-w-xs">
+              <div className="ml-auto mb-4 h-px w-10 bg-brand-500" />
+              <p className="font-display text-2xl font-bold tracking-tight text-white uppercase leading-snug">
+                {t('heroTitle')}<br />
+                <span className="text-brand-400">{t('heroSubtitle')}</span>
+              </p>
+              <p className="mt-4 text-xs text-white/65 leading-relaxed tracking-wide">
+                {t('heroDesc')}
+              </p>
+            </div>
+          </div>
+
+          {/* Scroll cue */}
+          <div className="flex justify-center pb-8">
+            <ChevronDown className="h-5 w-5 text-white/30 animate-bounce" />
+          </div>
+          </div>
+        </div>
       </section>
 
-      {/* Stats Bar */}
-      <div className="hidden md:block border-t border-black/10 dark:border-white/10 bg-white dark:bg-black">
-        <div className="container mx-auto px-4 py-10">
+{/* ── Stats strip ──────────────────────────────────────────── */}
+      <div className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-black">
+        <div className="container mx-auto px-8 md:px-16 py-10">
           <div className="grid grid-cols-3 gap-8">
             <div>
-              <p className="text-sm font-medium uppercase tracking-widest text-brand-500">{t('efficiency')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-500">{t('efficiency')}</p>
               <p className="mt-2 text-3xl font-bold text-black dark:text-white">{t('precision')}</p>
             </div>
             <div>
-              <p className="text-sm font-medium uppercase tracking-widest text-brand-500">{t('costReduction')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-500">{t('costReduction')}</p>
               <p className="mt-2 text-3xl font-bold text-black dark:text-white">{t('average')}</p>
             </div>
             <div>
-              <p className="text-sm font-medium uppercase tracking-widest text-brand-500">{t('defectRate')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-500">{t('defectRate')}</p>
               <p className="mt-2 text-3xl font-bold text-black dark:text-white">{t('ngRate')}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Section */}
+      {/* ── Advanced Technology ───────────────────────────────────── */}
       <section className="bg-white dark:bg-black py-24 transition-colors">
-        <div className="container mx-auto px-4">
-          <div className="mb-16 text-center">
-            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-5xl text-black dark:text-white uppercase">{t('techTitle')}</h2>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">{t('techDesc')}</p>
+        <div className="container mx-auto px-8 md:px-16">
+          <div className="mb-16">
+            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-5xl text-black dark:text-white uppercase">
+              {t('techTitle')}
+            </h2>
+            <p className="mt-4 text-gray-500 dark:text-gray-400 max-w-xl">{t('techDesc')}</p>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                icon: <Cpu className="h-8 w-8 text-brand-500" />,
-                title: t('aiVision'),
-                desc: t('aiVisionDesc')
-              },
-              {
-                icon: <Zap className="h-8 w-8 text-brand-500" />,
-                title: t('robotArm'),
-                desc: t('robotArmDesc')
-              },
-              {
-                icon: <ShieldCheck className="h-8 w-8 text-brand-500" />,
-                title: t('smartWelding'),
-                desc: t('smartWeldingDesc')
-              },
-              {
-                icon: <BarChart3 className="h-8 w-8 text-brand-500" />,
-                title: t('plcIntegration'),
-                desc: t('plcIntegrationDesc')
-              }
-            ].map((feature, i) => (
+              { icon: <Cpu className="h-7 w-7 text-brand-500" />,      title: t('aiVision'),      desc: t('aiVisionDesc') },
+              { icon: <Zap className="h-7 w-7 text-brand-500" />,      title: t('robotArm'),      desc: t('robotArmDesc') },
+              { icon: <ShieldCheck className="h-7 w-7 text-brand-500" />, title: t('smartWelding'), desc: t('smartWeldingDesc') },
+              { icon: <BarChart3 className="h-7 w-7 text-brand-500" />, title: t('plcIntegration'), desc: t('plcIntegrationDesc') },
+            ].map((f, i) => (
               <motion.div
                 key={i}
-                whileHover={{ y: -5 }}
-                className="rounded-2xl border border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 p-8 transition-colors hover:border-brand-500/50"
+                whileHover={{ y: -4 }}
+                className="rounded-2xl border border-black/5 dark:border-white/5 bg-black/3 dark:bg-white/5 p-8 transition-colors hover:border-brand-500/40"
               >
-                <div className="mb-4">{feature.icon}</div>
-                <h3 className="mb-2 text-xl font-bold text-black dark:text-white">{feature.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{feature.desc}</p>
+                <div className="mb-5">{f.icon}</div>
+                <h3 className="mb-2 text-lg font-bold text-black dark:text-white">{f.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Savings Teaser */}
+      {/* ── Savings Teaser ───────────────────────────────────────── */}
       <section className="relative overflow-hidden py-24">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://picsum.photos/seed/welding/1920/1080?grayscale"
-            alt="Welding Background"
-            fill
-            className="object-cover opacity-20"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-        <div className="container relative z-10 mx-auto px-4">
-          <div className="rounded-3xl border border-white/10 bg-black/60 p-8 backdrop-blur-xl md:p-16">
+        <Image
+          src="/home/home-hero.png"
+          alt=""
+          fill
+          className="object-cover opacity-15"
+        />
+        <div className="container relative z-10 mx-auto px-8 md:px-16">
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 backdrop-blur-xl md:p-16">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               <div>
-                <h2 className="font-display text-4xl font-bold tracking-tight sm:text-6xl text-white">
-                  {t('shipsBuiltWithUs')} <br />
+                <h2 className="font-display text-4xl font-bold tracking-tight sm:text-6xl text-white uppercase">
+                  {t('shipsBuiltWithUs')}<br />
                   <span className="text-brand-500">{t('costLess')}</span>
                 </h2>
-                <p className="mt-6 text-lg text-gray-300">
-                  {t('savingsTeaserDesc')}
-                </p>
+                <p className="mt-6 text-gray-300 leading-relaxed">{t('savingsTeaserDesc')}</p>
                 <Link
                   href="/savings"
-                  className="mt-10 inline-flex items-center gap-2 text-lg font-bold text-brand-500 hover:text-brand-400"
+                  className="mt-10 inline-flex items-center gap-2 text-lg font-bold text-brand-500 hover:text-brand-400 transition-colors"
                 >
                   {t('seeBreakdown')}
                   <ChevronRight className="h-5 w-5" />
                 </Link>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl bg-white/5 p-6 text-center">
-                  <p className="text-4xl font-bold text-white">4.5h</p>
-                  <p className="mt-2 text-xs uppercase tracking-widest text-gray-500">{t('conventionalTime')}</p>
+                <div className="rounded-2xl bg-white/10 p-6 text-center">
+                  <p className="text-4xl font-bold text-white">{t('cycleTimeConventional')}</p>
+                  <p className="mt-2 text-xs uppercase tracking-widest text-gray-300">{t('conventionalTime')}</p>
                 </div>
                 <div className="rounded-2xl bg-brand-500 p-6 text-center">
-                  <p className="text-4xl font-bold text-white">65s</p>
-                  <p className="mt-2 text-xs uppercase tracking-widest text-white/60">{t('smartFactoryTime')}</p>
+                  <p className="text-4xl font-bold text-white">{t('cycleTimeSmart')}</p>
+                  <p className="mt-2 text-xs uppercase tracking-widest text-white/80">{t('smartFactoryTime')}</p>
                 </div>
-                <div className="col-span-2 rounded-2xl bg-white/5 p-6 text-center">
+                <div className="col-span-2 rounded-2xl bg-white/10 p-6 text-center">
                   <p className="text-4xl font-bold text-white">{t('labourSavings')}</p>
-                  <p className="mt-2 text-xs uppercase tracking-widest text-gray-500">{t('onLabourCosts')}</p>
+                  <p className="mt-2 text-xs uppercase tracking-widest text-gray-300">{t('onLabourCosts')}</p>
                 </div>
               </div>
             </div>

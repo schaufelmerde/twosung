@@ -7,6 +7,28 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Package, Calendar, Flag, FileText, CheckCircle2, ChevronRight, Loader2, Trash2, Plus } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 
+const PART1_VARIANTS = [
+  { label: 'A', src: '/hull_image/hull_01_a.png' },
+  { label: 'B', src: '/hull_image/hull_01_b.png' },
+  { label: 'C', src: '/hull_image/hull_01_c.png' },
+];
+
+const PART2_VARIANTS = [
+  { label: 'A', src: '/hull_image/hull_02_a.png' },
+  { label: 'B', src: '/hull_image/hull_02_b.png' },
+  { label: 'C', src: '/hull_image/hull_02_c.png' },
+];
+
+const SHIP_TYPES: { value: string; labelKey: string; images: string[] }[] = [
+  { value: 'Bulk Carrier',      labelKey: 'shipTypeBulkCarrier',      images: ['/ship_type/bulk_carrier.png'] },
+  { value: 'Container Ship',    labelKey: 'shipTypeContainerShip',    images: ['/ship_type/container_ship.png'] },
+  { value: 'Tanker',            labelKey: 'shipTypeTanker',           images: ['/ship_type/tanker.png'] },
+  { value: 'LNG Carrier',       labelKey: 'shipTypeLNGCarrier',       images: ['/ship_type/lng_carrier.png'] },
+  { value: 'Naval Vessel',      labelKey: 'shipTypeNavalVessel',      images: ['/ship_type/naval_vessel.png'] },
+  { value: 'Offshore Platform', labelKey: 'shipTypeOffshorePlatform', images: ['/ship_type/offshore_platform.png'] },
+  { value: 'Ferry',             labelKey: 'shipTypeFerry',            images: ['/ship_type/ferry.png'] },
+];
+
 interface Part {
   partId:   string;
   name:     string;
@@ -51,7 +73,7 @@ export default function NewOrderPage() {
           partId:   p.part_id,
           name:     p.part_name,
           category: p.part_category,
-          unitCost: Number(p.unit_cost),
+          unitCost: Number(p.unit_cost) * 100,
           sortBin:  p.sort_bin,
         })));
       })
@@ -101,7 +123,7 @@ export default function NewOrderPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setSubmitError(data.error || 'Failed to place order');
+        setSubmitError(data.detail || data.error || 'Failed to place order');
         return;
       }
 
@@ -159,6 +181,39 @@ export default function NewOrderPage() {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-8"
               >
+                {/* Ship type selection */}
+                <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-8">
+                  <h3 className="mb-6 text-xl font-bold flex items-center gap-2 text-black dark:text-white">
+                    <Package className="h-5 w-5 text-brand-500" />
+                    {t('shipType')}
+                  </h3>
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                    {SHIP_TYPES.map((type) => {
+                      const selected = orderDetails.shipType === type.value;
+                      return (
+                        <button
+                          key={type.value}
+                          type="button"
+                          onClick={() => setOrderDetails({ ...orderDetails, shipType: type.value })}
+                          className={`rounded-2xl overflow-hidden border-2 transition-all ${
+                            selected
+                              ? 'border-brand-500 shadow-lg shadow-brand-500/20'
+                              : 'border-black/10 dark:border-white/10 hover:border-brand-400'
+                          }`}
+                        >
+                          <img src={type.images[0]} alt={t(type.labelKey as any)} className="w-full h-24 object-cover" />
+                          <div className={`px-2 py-2 text-xs font-semibold text-center transition-colors leading-tight ${
+                            selected ? 'bg-brand-500 text-white' : 'bg-white dark:bg-black/40 text-black dark:text-white'
+                          }`}>
+                            {t(type.labelKey as any)}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Hull block (part) selection */}
                 <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-8">
                   <h3 className="mb-6 text-xl font-bold flex items-center gap-2 text-black dark:text-white">
                     <Package className="h-5 w-5 text-brand-500" />
@@ -166,31 +221,54 @@ export default function NewOrderPage() {
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Part 1 — hull_01 variants */}
                     <div>
                       <label className="mb-2 block text-sm font-medium text-gray-500 dark:text-gray-400">{t('selectPart1')}</label>
                       <select
                         className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 p-4 text-sm text-black dark:text-white focus:border-brand-500 focus:outline-none"
-                        value={selectedPart1?.partId || ''}
-                        onChange={(e) => setSelectedPart1(part1Options.find(p => p.partId === e.target.value) || null)}
+                        value={selectedPart1 ? PART1_VARIANTS.findIndex((_, i) => part1Options[i]?.partId === selectedPart1.partId) : ''}
+                        onChange={(e) => {
+                          const idx = Number(e.target.value);
+                          setSelectedPart1(part1Options[idx] ?? null);
+                        }}
                       >
                         <option value="">{t('choosePart')}</option>
-                        {part1Options.map(p => (
-                          <option key={p.partId} value={p.partId}>{p.name} - ${p.unitCost.toLocaleString()}</option>
+                        {PART1_VARIANTS.map((v, i) => part1Options[i] && (
+                          <option key={v.label} value={i}>{part1Options[i].name} ({v.label})</option>
                         ))}
                       </select>
+                      {selectedPart1 && (() => {
+                        const idx = part1Options.findIndex(p => p.partId === selectedPart1.partId);
+                        const variant = PART1_VARIANTS[idx];
+                        return variant ? (
+                          <img src={variant.src} alt={selectedPart1.name} className="mt-3 w-full h-56 object-cover rounded-xl" />
+                        ) : null;
+                      })()}
                     </div>
+
+                    {/* Part 2 — hull_02 variants */}
                     <div>
                       <label className="mb-2 block text-sm font-medium text-gray-500 dark:text-gray-400">{t('selectPart2')}</label>
                       <select
                         className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 p-4 text-sm text-black dark:text-white focus:border-brand-500 focus:outline-none"
-                        value={selectedPart2?.partId || ''}
-                        onChange={(e) => setSelectedPart2(part2Options.find(p => p.partId === e.target.value) || null)}
+                        value={selectedPart2 ? PART2_VARIANTS.findIndex((_, i) => part2Options[i]?.partId === selectedPart2.partId) : ''}
+                        onChange={(e) => {
+                          const idx = Number(e.target.value);
+                          setSelectedPart2(part2Options[idx] ?? null);
+                        }}
                       >
                         <option value="">{t('choosePart')}</option>
-                        {part2Options.map(p => (
-                          <option key={p.partId} value={p.partId}>{p.name} - ${p.unitCost.toLocaleString()}</option>
+                        {PART2_VARIANTS.map((v, i) => part2Options[i] && (
+                          <option key={v.label} value={i}>{part2Options[i].name} ({v.label})</option>
                         ))}
                       </select>
+                      {selectedPart2 && (() => {
+                        const idx = part2Options.findIndex(p => p.partId === selectedPart2.partId);
+                        const variant = PART2_VARIANTS[idx];
+                        return variant ? (
+                          <img src={variant.src} alt={selectedPart2.name} className="mt-3 w-full h-56 object-cover rounded-xl" />
+                        ) : null;
+                      })()}
                     </div>
                   </div>
 
@@ -248,27 +326,12 @@ export default function NewOrderPage() {
                 <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-8 space-y-6">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                      <Package className="h-4 w-4" /> {t('shipType')}
-                    </label>
-                    <select
-                      className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 p-4 text-sm text-black dark:text-white focus:border-brand-500 focus:outline-none"
-                      value={orderDetails.shipType}
-                      onChange={(e) => setOrderDetails({ ...orderDetails, shipType: e.target.value })}
-                    >
-                      <option>LNG Carrier</option>
-                      <option>Container Ship</option>
-                      <option>Tanker</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
                       <Calendar className="h-4 w-4" /> {t('dueDate')}
                     </label>
                     <input
                       type="date"
                       required
-                      className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 p-4 text-sm text-black dark:text-white focus:border-brand-500 focus:outline-none"
+                      className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 p-4 text-sm text-black dark:text-white focus:border-brand-500 focus:outline-none [color-scheme:light] dark:[color-scheme:dark]"
                       value={orderDetails.dueDate}
                       onChange={(e) => setOrderDetails({ ...orderDetails, dueDate: e.target.value })}
                     />

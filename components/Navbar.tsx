@@ -19,6 +19,16 @@ export default function Navbar() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
+
+  const isHome = pathname === '/';
+
+  React.useEffect(() => {
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
 
   const navItems = [
     { name: t('home'), href: '/' },
@@ -30,9 +40,17 @@ export default function Navbar() {
     await signOut({ callbackUrl: '/' });
   };
 
+  const transparent = isHome && !scrolled;
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/80 backdrop-blur-md transition-colors">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <nav className={cn(
+      'top-0 z-50 w-full transition-all duration-300',
+      isHome ? 'fixed' : 'sticky',
+      transparent
+        ? 'border-b border-transparent bg-transparent'
+        : 'border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/80 backdrop-blur-md'
+    )}>
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
@@ -41,7 +59,7 @@ export default function Navbar() {
                 alt="Twosung"
                 width={120}
                 height={42}
-                className="h-9 w-auto block dark:hidden"
+                className={cn('h-9 w-auto', transparent ? 'hidden' : 'block dark:hidden')}
                 priority
               />
               <Image
@@ -49,7 +67,7 @@ export default function Navbar() {
                 alt="Twosung"
                 width={120}
                 height={42}
-                className="h-9 w-auto hidden dark:block"
+                className={cn('h-9 w-auto', transparent ? 'block' : 'hidden dark:block')}
                 priority
               />
             </Link>
@@ -64,7 +82,9 @@ export default function Navbar() {
                   href={item.href}
                   className={cn(
                     'text-sm font-medium transition-colors hover:text-brand-500',
-                    pathname === item.href ? 'text-brand-500' : 'text-gray-600 dark:text-gray-300'
+                    pathname === item.href
+                      ? 'text-brand-500'
+                      : transparent ? 'text-white/80' : 'text-gray-600 dark:text-gray-300'
                   )}
                 >
                   {item.name}
@@ -75,7 +95,9 @@ export default function Navbar() {
                   href="/my"
                   className={cn(
                     'text-sm font-medium transition-colors hover:text-brand-500',
-                    pathname.startsWith('/my') ? 'text-brand-500' : 'text-gray-600 dark:text-gray-300'
+                    pathname.startsWith('/my')
+                      ? 'text-brand-500'
+                      : transparent ? 'text-white/80' : 'text-gray-600 dark:text-gray-300'
                   )}
                 >
                   {t('dashboard')}
@@ -88,7 +110,10 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              className={cn(
+                'p-2 rounded-full transition-colors',
+                transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : 'hover:bg-black/5 dark:hover:bg-white/5'
+              )}
               title="Toggle Theme"
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -97,7 +122,10 @@ export default function Navbar() {
             {/* Language Toggle */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'ko' : 'en')}
-              className="flex items-center gap-1 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-sm font-bold"
+              className={cn(
+                'flex items-center gap-1 p-2 rounded-full transition-colors text-sm font-bold',
+                transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : 'hover:bg-black/5 dark:hover:bg-white/5'
+              )}
               title="Switch Language"
             >
               <Globe className="h-5 w-5" />
@@ -113,13 +141,19 @@ export default function Navbar() {
                   <ShoppingCart className="h-4 w-4" />
                   {t('newOrder')}
                 </Link>
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <div className={cn(
+                  'flex items-center gap-2 text-sm',
+                  transparent ? 'text-white/80' : 'text-gray-600 dark:text-gray-300'
+                )}>
                   <User className="h-4 w-4" />
                   <span>{profile?.contactName || user.email}</span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                  className={cn(
+                    'transition-colors',
+                    transparent ? 'text-white/60 hover:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'
+                  )}
                   title="Logout"
                 >
                   <LogOut className="h-5 w-5" />
@@ -129,7 +163,10 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
+                  className={cn(
+                    'text-sm font-medium transition-colors hover:text-brand-500',
+                    transparent ? 'text-white/80' : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'
+                  )}
                 >
                   {t('login')}
                 </Link>

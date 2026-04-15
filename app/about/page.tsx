@@ -14,11 +14,10 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative h-[50vh] overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/about/1920/1080?blur=5"
+          src="/about/about-hero.png"
           alt="About Us Hero"
           fill
           className="object-cover opacity-40"
-          referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/60 to-white dark:from-black/60 dark:to-black"></div>
         <div className="container relative z-10 mx-auto flex h-full flex-col justify-center px-4">
@@ -50,11 +49,10 @@ export default function AboutPage() {
           </div>
           <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 dark:border-white/10">
             <Image
-              src="https://picsum.photos/seed/robot/800/600"
-              alt="Robot Arm"
+              src="/about/team.jpg"
+              alt="Team"
               fill
               className="object-cover"
-              referrerPolicy="no-referrer"
             />
           </div>
         </div>
