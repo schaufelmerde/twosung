@@ -58,23 +58,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Current queue state — determines status assigned to each new order
+  // Sequence counters only — status is always PENDING on creation.
+  // The PLC controller (plc_order_controller.py) is the sole authority
+  // on promoting orders to IN_PROGRESS/QUEUED via fill_slots().
   const [
-    [inProgressRows],
-    [queuedRows],
     [orderCountRows],
     [shipCountRows],
   ] = await Promise.all([
-    orderDb.execute<RowDataPacket[]>("SELECT COUNT(*) AS cnt FROM orders WHERE status = 'IN_PROGRESS'"),
-    orderDb.execute<RowDataPacket[]>("SELECT COUNT(*) AS cnt FROM orders WHERE status = 'QUEUED'"),
     orderDb.execute<RowDataPacket[]>("SELECT COALESCE(MAX(CAST(SUBSTRING(order_id, 2) AS UNSIGNED)), 0) AS cnt FROM orders"),
     inventoryDb.execute<RowDataPacket[]>("SELECT COALESCE(MAX(CAST(SUBSTRING(ship_id, 6) AS UNSIGNED)), 0) AS cnt FROM ships"),
   ]);
 
-  let inProgressSlotFilled = Number(inProgressRows[0].cnt) > 0;
-  let queuedSlotFilled     = Number(queuedRows[0].cnt) > 0;
-  let orderSeq             = Number(orderCountRows[0].cnt);
-  let shipSeq              = Number(shipCountRows[0].cnt);
+  let orderSeq = Number(orderCountRows[0].cnt);
+  let shipSeq  = Number(shipCountRows[0].cnt);
 
   const conn = await orderDb.getConnection();
   const createdOrderIds: string[] = [];
@@ -89,22 +85,11 @@ export async function POST(req: NextRequest) {
       const orderId = `P${String(orderSeq).padStart(9, '0')}`;
       const shipId  = `SHIP-${String(shipSeq).padStart(3, '0')}`;
 
-      let status: string;
-      if (!inProgressSlotFilled) {
-        status = 'IN_PROGRESS';
-        inProgressSlotFilled = true;
-      } else if (!queuedSlotFilled) {
-        status = 'QUEUED';
-        queuedSlotFilled = true;
-      } else {
-        status = 'PENDING';
-      }
-
       await conn.execute<ResultSetHeader>(
         `INSERT INTO orders
            (order_id, customer_id, ship_type, due_date, priority, notes, status, total_qty, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)`,
-        [orderId, session.user.customerId, shipType, dueDate, priority, notes || null, status, session.user.email ?? null]
+         VALUES (?, ?, ?, ?, ?, ?, 'PENDING', 1, ?)`,
+        [orderId, session.user.customerId, shipType, dueDate, priority, notes || null, session.user.email ?? null]
       );
 
       await conn.execute<ResultSetHeader>(
@@ -130,5 +115,17 @@ export async function POST(req: NextRequest) {
   }
 
   conn.release();
+
+  // Notify local FastAPI server so PLC controller fills slots immediately.
+  // Fire-and-forget — failure here must not block the order response.
+  const localApi = process.env.LOCAL_API_URL || 'http://localhost:8000';
+  for (const orderId of createdOrderIds) {
+    fetch(`${localApi}/orders/notify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_id: orderId }),
+    }).catch(() => {});
+  }
+
   return NextResponse.json({ orderIds: createdOrderIds }, { status: 201 });
 }

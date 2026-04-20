@@ -55,7 +55,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <Image
-                src="/twosung_logo_v2.svg"
+                src="/twosung_logo_v3.svg"
                 alt="Twosung"
                 width={120}
                 height={42}
@@ -63,7 +63,7 @@ export default function Navbar() {
                 priority
               />
               <Image
-                src="/twosung_logo_white_v2.svg"
+                src="/twosung_logo_white_v3.svg"
                 alt="Twosung"
                 width={120}
                 height={42}
